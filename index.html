@@ -21,6 +21,14 @@
         #profile, #connections {
             margin-top: 20px;
         }
+        .error {
+            color: red;
+        }
+        .loading {
+            font-size: 18px;
+            font-weight: bold;
+            color: blue;
+        }
     </style>
 </head>
 <body>
@@ -29,7 +37,11 @@
     
     <!-- Button to trigger LinkedIn login -->
     <button id="login-btn">Login with LinkedIn</button>
-    
+
+    <!-- Display Loading or Error Messages -->
+    <p id="status" class="loading" style="display:none;">Logging in...</p>
+    <p id="error" class="error" style="display:none;"></p>
+
     <!-- Section to display the user profile -->
     <div id="profile" style="display:none;">
         <h2>User Profile</h2>
@@ -47,43 +59,36 @@
     <script>
         // Step 1: Redirect to the backend to start the LinkedIn OAuth2 flow
         document.getElementById('login-btn').addEventListener('click', function() {
+            document.getElementById('status').style.display = 'block';
             window.location.href = '/auth/linkedin'; // Redirect to Flask backend for LinkedIn login
         });
 
         // Step 2: Handle the JSON response returned by Flask (user profile and connections)
         function displayUserData(data) {
-            // Display profile data
-            document.getElementById('profile').style.display = 'block';
-            document.getElementById('profile-name').textContent = `${data.profile.firstName.localized.en_US} ${data.profile.lastName.localized.en_US}`;
-            document.getElementById('profile-headline').textContent = data.profile.headline.localized.en_US || "No headline available";
-            document.getElementById('profile-image').src = data.profile.profilePicture.displayImage;
+            document.getElementById('status').style.display = 'none'; // Hide loading
+            if (data.profile && data.connections) {
+                // Display profile data
+                document.getElementById('profile').style.display = 'block';
+                document.getElementById('profile-name').textContent = `${data.profile.firstName.localized.en_US} ${data.profile.lastName.localized.en_US}`;
+                document.getElementById('profile-headline').textContent = data.profile.headline.localized.en_US || "No headline available";
+                document.getElementById('profile-image').src = data.profile.profilePicture.displayImage;
 
-            // Display connections data
-            document.getElementById('connections').style.display = 'block';
-            const connectionsList = document.getElementById('connections-list');
-            connectionsList.innerHTML = ''; // Clear any previous connections
+                // Display connections data
+                document.getElementById('connections').style.display = 'block';
+                const connectionsList = document.getElementById('connections-list');
+                connectionsList.innerHTML = ''; // Clear any previous connections
 
-            data.connections.elements.forEach(connection => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <strong>${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}</strong>
-                    <img src="${connection.profilePicture.displayImage}" alt="${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}" width="40">
-                `;
-                connectionsList.appendChild(listItem);
-            });
-        }
+                data.connections.elements.forEach(connection => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <strong>${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}</strong>
+                        <img src="${connection.profilePicture.displayImage}" alt="${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}" width="40">
+                    `;
+                    connectionsList.appendChild(listItem);
+                });
+            } else {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'Error fetching data from LinkedIn API.';
+            }
+       
 
-        // Step 3: On successful OAuth2 flow, the backend will return the profile and connections data
-        if (window.location.search.includes('code')) {
-            const code = new URLSearchParams(window.location.search).get('code');
-            fetch(`/auth/linkedin/callback?code=${code}`)
-                .then(response => response.json())
-                .then(data => {
-                    displayUserData(data);
-                })
-                .catch(error => console.error('Error fetching data from backend:', error));
-        }
-    </script>
-    
-</body>
-</html>
