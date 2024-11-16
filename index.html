@@ -18,16 +18,11 @@
             border: none;
             border-radius: 5px;
         }
-        #profile, #connections {
+        #profile, #connections, #notifications {
             margin-top: 20px;
         }
         .error {
             color: red;
-        }
-        .loading {
-            font-size: 18px;
-            font-weight: bold;
-            color: blue;
         }
     </style>
 </head>
@@ -39,22 +34,8 @@
     <button id="login-btn">Login with LinkedIn</button>
 
     <!-- Display Loading or Error Messages -->
-    <p id="status" class="loading" style="display:none;">Logging in...</p>
+    <p id="status" style="display:none;">Logging in...</p>
     <p id="error" class="error" style="display:none;"></p>
-
-    <!-- Section to display the user profile -->
-    <div id="profile" style="display:none;">
-        <h2>User Profile</h2>
-        <img id="profile-image" src="" alt="Profile Image" width="100">
-        <p><strong>Name:</strong> <span id="profile-name"></span></p>
-        <p><strong>Headline:</strong> <span id="profile-headline"></span></p>
-    </div>
-    
-    <!-- Section to display user's connections -->
-    <div id="connections" style="display:none;">
-        <h2>User Connections</h2>
-        <ul id="connections-list"></ul>
-    </div>
 
     <script>
         // Step 1: Redirect to the backend to start the LinkedIn OAuth2 flow
@@ -62,66 +43,7 @@
             document.getElementById('status').style.display = 'block';
             window.location.href = '/auth/linkedin'; // Redirect to Flask backend for LinkedIn login
         });
-
-        // This function will be called after LinkedIn redirects to your app
-        function handleCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code'); // Get the 'code' from the URL parameters
-
-            if (code) {
-                // Send the authorization code to the backend to get the access token
-                fetch(`/auth/linkedin/callback?code=${code}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        displayUserData(data); // Display user data (profile and connections)
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data from backend:', error);
-                        document.getElementById('error').style.display = 'block';
-                        document.getElementById('error').textContent = 'Error fetching data from backend.';
-                    });
-            } else {
-                console.error('No code in URL.');
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('error').textContent = 'Error: No authorization code found.';
-            }
-        }
-
-        // Display the user profile and connections on the page
-        function displayUserData(data) {
-            document.getElementById('status').style.display = 'none'; // Hide loading
-            if (data.profile && data.connections) {
-                // Display profile data
-                document.getElementById('profile').style.display = 'block';
-                document.getElementById('profile-name').textContent = `${data.profile.firstName.localized.en_US} ${data.profile.lastName.localized.en_US}`;
-                document.getElementById('profile-headline').textContent = data.profile.headline.localized.en_US || "No headline available";
-                document.getElementById('profile-image').src = data.profile.profilePicture.displayImage;
-
-                // Display connections data
-                document.getElementById('connections').style.display = 'block';
-                const connectionsList = document.getElementById('connections-list');
-                connectionsList.innerHTML = ''; // Clear any previous connections
-
-                data.connections.elements.forEach(connection => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        <strong>${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}</strong>
-                        <img src="${connection.profilePicture.displayImage}" alt="${connection.firstName.localized.en_US} ${connection.lastName.localized.en_US}" width="40">
-                    `;
-                    connectionsList.appendChild(listItem);
-                });
-            } else {
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('error').textContent = 'Error fetching data from LinkedIn API.';
-            }
-        }
-
-        // If this page is the callback page, handle the callback
-        if (window.location.pathname.includes('/auth/linkedin/callback')) {
-            handleCallback();
-        }
     </script>
+
 </body>
 </html>
-
-
