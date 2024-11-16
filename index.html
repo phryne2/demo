@@ -63,7 +63,31 @@
             window.location.href = '/auth/linkedin'; // Redirect to Flask backend for LinkedIn login
         });
 
-        // Step 2: Handle the JSON response returned by Flask (user profile and connections)
+        // This function will be called after LinkedIn redirects to your app
+        function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code'); // Get the 'code' from the URL parameters
+
+            if (code) {
+                // Send the authorization code to the backend to get the access token
+                fetch(`/auth/linkedin/callback?code=${code}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayUserData(data); // Display user data (profile and connections)
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data from backend:', error);
+                        document.getElementById('error').style.display = 'block';
+                        document.getElementById('error').textContent = 'Error fetching data from backend.';
+                    });
+            } else {
+                console.error('No code in URL.');
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'Error: No authorization code found.';
+            }
+        }
+
+        // Display the user profile and connections on the page
         function displayUserData(data) {
             document.getElementById('status').style.display = 'none'; // Hide loading
             if (data.profile && data.connections) {
@@ -90,5 +114,14 @@
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('error').textContent = 'Error fetching data from LinkedIn API.';
             }
-       
+        }
+
+        // If this page is the callback page, handle the callback
+        if (window.location.pathname.includes('/auth/linkedin/callback')) {
+            handleCallback();
+        }
+    </script>
+</body>
+</html>
+
 
