@@ -1,49 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn OAuth2 Integration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        #login-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #0073b1;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #profile, #connections, #notifications {
-            margin-top: 20px;
-        }
-        .error {
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Social Tracker</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
-
-    <h1>Login with LinkedIn</h1>
-    
-    <!-- Button to trigger LinkedIn login -->
-    <button id="login-btn">Login with LinkedIn</button>
-
-    <!-- Display Loading or Error Messages -->
-    <p id="status" style="display:none;">Logging in...</p>
-    <p id="error" class="error" style="display:none;"></p>
-
-    <script>
-        // Step 1: Redirect to the backend to start the LinkedIn OAuth2 flow
-        document.getElementById('login-btn').addEventListener('click', function() {
-            document.getElementById('status').style.display = 'block';
-            window.location.href = '/auth/linkedin'; // Redirect to Flask backend for LinkedIn login
-        });
-    </script>
-
+  <header class="hero">
+    <div class="container">
+      <h1>Welcome to Unified Social Tracker</h1>
+      <p>Streamline your social media engagement effortlessly.</p>
+      <a href="./pages/onboarding.html" class="btn">Get Started</a>
+    </div>
+  </header>
 </body>
 </html>
+
